@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+using namespace glm;
 
 int main(int argc, char** argv)
 {
@@ -25,6 +26,14 @@ int main(int argc, char** argv)
     return -1;
   }
   glfwMakeContextCurrent(window);
+  glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+
+  glewExperimental = true;
+  if (glewInit() != GLEW_OK) {
+    fprintf(stderr, "Failed to initialize GLEW!\n");
+    glfwTerminate();
+    return -1;
+  }
 
   GLuint VertexArrayID;
   glGenVertexArrays(1, &VertexArrayID);
@@ -36,12 +45,13 @@ int main(int argc, char** argv)
     0.0f, 1.0f, 0.0f,
   };
 
-  glewExperimental = true;
-  if (glewInit() != GLEW_OK) {
-    fprintf(stderr, "Failed to initialize GLEW!\n");
-  }
-
-  glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+  GLuint vertexbuffer;
+  glGenBuffers(1, &vertexbuffer);
+  glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+  glBufferData(GL_ARRAY_BUFFER,
+               sizeof(g_vertex_buffer_data),
+               g_vertex_buffer_data,
+               GL_STATIC_DRAW);
   do {
     glClear(GL_COLOR_BUFFER_BIT);
 
