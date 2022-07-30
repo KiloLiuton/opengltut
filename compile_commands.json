@@ -1,0 +1,17 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-Iimgui",
+      "-g",
+      "-Wall",
+      "-o",
+      "run_debug",
+      "main.cpp"
+    ],
+    "directory": "/home/kevin/src/opengltut",
+    "file": "/home/kevin/src/opengltut/main.cpp",
+    "output": "/home/kevin/src/opengltut/run_debug"
+  }
+]
