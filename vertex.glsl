@@ -1,17 +1,16 @@
 #version 450 core
-
 layout(location = 0) in vec3 vertexPosition_modelspace;
-layout(location = 1) in vec3 fragColor;
+layout(location = 1) in vec3 vertexColor;
 layout(location = 2) in vec2 vertexUV;
 
-out vec3 color;
+out vec3 fragColor;
 out vec2 UV;
 
 uniform mat4 MVP;
 
 void main()
 {
-    gl_Position = MVP * vec4(vertexPosition_modelspace, 1);
-    color = fragColor;
-    UV = vertexUV;
+  gl_Position = MVP * vec4(vertexPosition_modelspace, 1);
+  fragColor = vertexColor;
+  UV = vertexUV;
 }

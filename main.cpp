@@ -14,7 +14,7 @@
 using namespace glm;
 
 #include "shader.hpp"
-#include "loadBMP.hpp"
+#include "loadTexture.hpp"
 
 
 int main(int argc, char** argv)
@@ -61,91 +61,55 @@ int main(int argc, char** argv)
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
     glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 100.f); 
-    glm::mat4 View = glm::lookAt(glm::vec3(3,3,3), glm::vec3(0,0,0), glm::vec3(0,1,0));
+    glm::mat4 View = glm::lookAt(glm::vec3(2, 3, 6), glm::vec3(0,0,0), glm::vec3(0,1,0));
     glm::mat4 Model = glm::mat4(1.0f);
     Model = glm::scale(Model, glm::vec3(1.0f, 1.0f, 1.0f));
     Model = glm::translate(Model, glm::vec3(0.0f, 0.0f, 0.0f));
     glm::mat4 mvp = Projection * View * Model;
 
-    static const GLfloat g_vertex_buffer_data[] = {
-        1.0f,1.0f,1.0f, -1.0f,-1.0f,1.0f,// front face
-        -1.0f,1.0f,1.0f, 1.0f,1.0f,1.0f,
-        1.0f,-1.0f,1.0f, -1.0f,-1.0f,1.0f,
-        -1.0f,-1.0f,-1.0f, -1.0f,1.0f,-1.0f,// back face
-        1.0f,1.0f,-1.0f, -1.0f,-1.0f,-1.0f,
-        1.0f,-1.0f,-1.0f, 1.0f,1.0f,-1.0f,
-        1.0f,1.0f,1.0f, -1.0f,1.0f,1.0f,// top face
-        1.0f,1.0f,-1.0f, -1.0f,1.0f,-1.0f,
-        -1.0f,1.0f,1.0f, 1.0f,1.0f,-1.0f,
-        1.0f,-1.0f,1.0f, -1.0f,-1.0f,1.0f,// bottom face
-        1.0f,-1.0f,-1.0f, -1.0f,-1.0f,-1.0f,
-        -1.0f,-1.0f,1.0f, 1.0f,-1.0f,-1.0f,
-        1.0f,1.0f,1.0f, 1.0f,-1.0f,1.0f,// right face
-        1.0f,1.0f,-1.0f, 1.0f,-1.0f,-1.0f,
-        1.0f,-1.0f,1.0f, 1.0f,1.0f,-1.0f,
-        -1.0f,1.0f,1.0f, -1.0f,-1.0f,1.0f,// left face
-        -1.0f,1.0f,-1.0f, -1.0f,-1.0f,-1.0f,
-        -1.0f,-1.0f,1.0f, -1.0f,1.0f,-1.0f,
+    static const GLfloat g_vertex_buffer_data[6*6*3] = {
+       +1.0f,+1.0f,+1.0f, -1.0f,-1.0f,+1.0f, -1.0f,+1.0f,+1.0f,// front face
+       +1.0f,+1.0f,+1.0f, +1.0f,-1.0f,+1.0f, -1.0f,-1.0f,+1.0f,
+       -1.0f,-1.0f,-1.0f, -1.0f,+1.0f,-1.0f, +1.0f,+1.0f,-1.0f,// back face
+       -1.0f,-1.0f,-1.0f, +1.0f,-1.0f,-1.0f, +1.0f,+1.0f,-1.0f,
+       +1.0f,+1.0f,+1.0f, -1.0f,+1.0f,+1.0f, +1.0f,+1.0f,-1.0f,// top face
+       -1.0f,+1.0f,-1.0f, -1.0f,+1.0f,+1.0f, +1.0f,+1.0f,-1.0f,
+       +1.0f,-1.0f,+1.0f, -1.0f,-1.0f,+1.0f, +1.0f,-1.0f,-1.0f,// bottom face
+       -1.0f,-1.0f,-1.0f, -1.0f,-1.0f,+1.0f, +1.0f,-1.0f,-1.0f,
+       +1.0f,+1.0f,+1.0f, +1.0f,-1.0f,+1.0f, +1.0f,+1.0f,-1.0f,// right face
+       +1.0f,-1.0f,-1.0f, +1.0f,-1.0f,+1.0f, +1.0f,+1.0f,-1.0f,
+       -1.0f,+1.0f,+1.0f, -1.0f,-1.0f,+1.0f, -1.0f,+1.0f,-1.0f,// left face
+       -1.0f,-1.0f,-1.0f, -1.0f,-1.0f,+1.0f, -1.0f,+1.0f,-1.0f,
     };
 
     static GLfloat g_color_buffer_data[6*6*3] = {
-        0.0f,0.0f,1.0f, 0.0f,0.0f,1.0f,//
-        1.0f,0.0f,0.0f, 0.0f,0.0f,1.0f,
-        0.5f,1.0f,0.0f, 0.0f,0.0f,1.0f,
-        0.0f,1.0f,0.5f, 0.5f,0.0f,1.0f,//
-        0.0f,0.5f,1.0f, 0.0f,1.0f,0.5f,
-        1.0f,0.0f,0.5f, 0.0f,0.5f,1.0f,
-        0.0f,0.0f,1.0f, 1.0f,0.0f,0.0f,//
-        0.0f,0.5f,1.0f, 0.5f,0.0f,1.0f,
-        1.0f,0.0f,0.0f, 0.0f,0.5f,1.0f,
-        0.5f,1.0f,0.0f, 0.0f,0.0f,1.0f,//
-        1.0f,0.0f,0.5f, 0.0f,1.0f,0.5f,
-        0.0f,0.0f,1.0f, 1.0f,0.0f,0.5f,
-        0.0f,0.0f,1.0f, 0.5f,1.0f,0.0f,//
-        0.0f,0.5f,1.0f, 1.0f,0.0f,0.5f,
-        0.5f,1.0f,0.0f, 0.0f,0.5f,1.0f,
-        1.0f,0.0f,0.0f, 0.0f,0.0f,1.0f,//
-        0.5f,0.0f,1.0f, 0.0f,1.0f,0.5f,
-        0.0f,0.0f,1.0f, 0.5f,0.0f,1.0f,
+        0.0f,0.0f,1.0f, 0.0f,0.0f,1.0f, 1.0f,0.0f,0.0f,//
+        0.0f,0.0f,1.0f, 0.5f,1.0f,0.0f, 0.0f,0.0f,1.0f,
+        0.0f,1.0f,0.5f, 0.5f,0.0f,1.0f, 0.0f,0.5f,1.0f,//
+        0.0f,1.0f,0.5f, 1.0f,0.0f,0.5f, 0.0f,0.5f,1.0f,
+        0.0f,0.0f,1.0f, 1.0f,0.0f,0.0f, 0.0f,0.5f,1.0f,//
+        0.5f,0.0f,1.0f, 1.0f,0.0f,0.0f, 0.0f,0.5f,1.0f,
+        0.5f,1.0f,0.0f, 0.0f,0.0f,1.0f, 1.0f,0.0f,0.5f,//
+        0.0f,1.0f,0.5f, 0.0f,0.0f,1.0f, 1.0f,0.0f,0.5f,
+        0.0f,0.0f,1.0f, 0.5f,1.0f,0.0f, 0.0f,0.5f,1.0f,//
+        1.0f,0.0f,0.5f, 0.5f,1.0f,0.0f, 0.0f,0.5f,1.0f,
+        1.0f,0.0f,0.0f, 0.0f,0.0f,1.0f, 0.5f,0.0f,1.0f,//
+        0.0f,1.0f,0.5f, 0.0f,0.0f,1.0f, 0.5f,0.0f,1.0f,
     };
 
-    static GLfloat g_texture_buffer_data[6*6*2] = {
-        0.000059f, 1.0f-0.000004f,
-        0.000103f, 1.0f-0.336048f,
-        0.335973f, 1.0f-0.335903f,
-        1.000023f, 1.0f-0.000013f,
-        0.667979f, 1.0f-0.335851f,
-        0.999958f, 1.0f-0.336064f,
-        0.667979f, 1.0f-0.335851f,
-        0.336024f, 1.0f-0.671877f,
-        0.667969f, 1.0f-0.671889f,
-        1.000023f, 1.0f-0.000013f,
-        0.668104f, 1.0f-0.000013f,
-        0.667979f, 1.0f-0.335851f,
-        0.000059f, 1.0f-0.000004f,
-        0.335973f, 1.0f-0.335903f,
-        0.336098f, 1.0f-0.000071f,
-        0.667979f, 1.0f-0.335851f,
-        0.335973f, 1.0f-0.335903f,
-        0.336024f, 1.0f-0.671877f,
-        1.000004f, 1.0f-0.671847f,
-        0.999958f, 1.0f-0.336064f,
-        0.667979f, 1.0f-0.335851f,
-        0.668104f, 1.0f-0.000013f,
-        0.335973f, 1.0f-0.335903f,
-        0.667979f, 1.0f-0.335851f,
-        0.335973f, 1.0f-0.335903f,
-        0.668104f, 1.0f-0.000013f,
-        0.336098f, 1.0f-0.000071f,
-        0.000103f, 1.0f-0.336048f,
-        0.000004f, 1.0f-0.671870f,
-        0.336024f, 1.0f-0.671877f,
-        0.000103f, 1.0f-0.336048f,
-        0.336024f, 1.0f-0.671877f,
-        0.335973f, 1.0f-0.335903f,
-        0.667969f, 1.0f-0.671889f,
-        1.000004f, 1.0f-0.671847f,
-        0.667979f, 1.0f-0.335851f
+    static GLfloat g_uv_buffer_data[6*6*2] = {
+        0.630787f,0.360658f, 0.968082f,0.697951f, 0.968082f,0.360658f,
+        0.763191f,0.381100f, 0.385350f,0.003256f, 0.385350f,0.381100f,
+        0.393932f,0.728072f, 0.072078f,0.728072f, 0.072078f,0.955037f,
+        0.072078f,0.955037f, 0.393932f,0.955037f, 0.393932f,0.728072f,
+        0.007506f,0.381100f, 0.385350f,0.381100f, 0.385350f,0.003256f,
+        0.072078f,0.501107f, 0.393932f,0.728072f, 0.393932f,0.501107f,
+        0.465324f,0.740258f, 0.702010f,0.976941f, 0.702010f,0.740258f,
+        0.072078f,0.728072f, 0.393932f,0.728072f, 0.072078f,0.501107f,
+        0.763193f,0.003256f, 0.385350f,0.003256f, 0.763191f,0.381100f,
+        0.465324f,0.976941f, 0.702010f,0.976941f, 0.465324f,0.740258f,
+        0.385350f,0.003256f, 0.007506f,0.003256f, 0.007506f,0.381100f,
+        0.630787f,0.697951f, 0.968082f,0.697951f, 0.630787f,0.360658f,
     };
 
     for (int i=0; i<6*6; i++) {
@@ -169,7 +133,7 @@ int main(int argc, char** argv)
     GLuint uvbuffer;
     glGenBuffers(1, &uvbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_texture_buffer_data), g_texture_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data, GL_STATIC_DRAW);
 
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -177,18 +141,18 @@ int main(int argc, char** argv)
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
         // Draw
-        // vertices
+        // First attribute is vertices array
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-        // colors
+        // Second attribute is base color
         glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-        // texture
+        // Third attribute is a BMP texture
         glEnableVertexAttribArray(2);
         glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
         // draw
         glDrawArrays(GL_TRIANGLES, 0, 6*6);
