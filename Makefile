@@ -1,7 +1,7 @@
 cflags = -Iimgui
 lflags = -lglfw -lGLEW -lGLU -lGL
-deps = shader.cpp
-headers = shader.hpp
+deps = shader.cpp loadBMP.cpp
+headers = shader.hpp loadBMP.hpp
 
 debug:
 	g++ main.cpp ${deps} -o run_debug ${cflags} ${lflags} -g -Wall
