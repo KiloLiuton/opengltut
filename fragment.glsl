@@ -9,11 +9,10 @@ uniform sampler2D myTextureSampler;
 
 void main()
 {
-    vec3 tex = texture(myTextureSampler, UV);
+    vec3 tex = texture(myTextureSampler, UV).rgb;
     if (tex.r + tex.g + tex.b > 2.4) {
         color = fragColor;
     } else {
         color = tex;
     }
-	color = fragColor;
 }
