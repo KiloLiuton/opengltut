@@ -119,6 +119,7 @@ int main(int argc, char** argv)
     }
 
     GLuint Texture = loadBMP_custom("uvtemplate.bmp");
+    //GLuint Texture = loadDDS("uvtemplate.dds");
 
     GLuint vertexbuffer;
     glGenBuffers(1, &vertexbuffer);
