@@ -15,6 +15,7 @@ using namespace glm;
 
 #include "shader.hpp"
 #include "loadTexture.hpp"
+#include "controls.hpp"
 
 
 int main(int argc, char** argv)
@@ -60,13 +61,6 @@ int main(int argc, char** argv)
 
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
-    glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 100.f); 
-    glm::mat4 View = glm::lookAt(glm::vec3(2, 3, 6), glm::vec3(0,0,0), glm::vec3(0,1,0));
-    glm::mat4 Model = glm::mat4(1.0f);
-    Model = glm::scale(Model, glm::vec3(1.0f, 1.0f, 1.0f));
-    Model = glm::translate(Model, glm::vec3(0.0f, 0.0f, 0.0f));
-    glm::mat4 mvp = Projection * View * Model;
-
     static const GLfloat g_vertex_buffer_data[6*6*3] = {
        +1.0f,+1.0f,+1.0f, -1.0f,-1.0f,+1.0f, -1.0f,+1.0f,+1.0f,// front face
        +1.0f,+1.0f,+1.0f, +1.0f,-1.0f,+1.0f, -1.0f,-1.0f,+1.0f,
@@ -98,18 +92,18 @@ int main(int argc, char** argv)
     };
 
     static GLfloat g_uv_buffer_data[6*6*2] = {
-        0.630787f,0.360658f, 0.968082f,0.697951f, 0.968082f,0.360658f,
-        0.763191f,0.381100f, 0.385350f,0.003256f, 0.385350f,0.381100f,
-        0.393932f,0.728072f, 0.072078f,0.728072f, 0.072078f,0.955037f,
-        0.072078f,0.955037f, 0.393932f,0.955037f, 0.393932f,0.728072f,
-        0.007506f,0.381100f, 0.385350f,0.381100f, 0.385350f,0.003256f,
-        0.072078f,0.501107f, 0.393932f,0.728072f, 0.393932f,0.501107f,
-        0.465324f,0.740258f, 0.702010f,0.976941f, 0.702010f,0.740258f,
-        0.072078f,0.728072f, 0.393932f,0.728072f, 0.072078f,0.501107f,
-        0.763193f,0.003256f, 0.385350f,0.003256f, 0.763191f,0.381100f,
-        0.465324f,0.976941f, 0.702010f,0.976941f, 0.465324f,0.740258f,
-        0.385350f,0.003256f, 0.007506f,0.003256f, 0.007506f,0.381100f,
-        0.630787f,0.697951f, 0.968082f,0.697951f, 0.630787f,0.360658f,
+        0.630787f,1.0f-0.360658f, 0.968082f,1.0f-0.697951f, 0.968082f,1.0f-0.360658f,
+        0.763191f,1.0f-0.381100f, 0.385350f,1.0f-0.003256f, 0.385350f,1.0f-0.381100f,
+        0.393932f,1.0f-0.728072f, 0.072078f,1.0f-0.728072f, 0.072078f,1.0f-0.955037f,
+        0.072078f,1.0f-0.955037f, 0.393932f,1.0f-0.955037f, 0.393932f,1.0f-0.728072f,
+        0.007506f,1.0f-0.381100f, 0.385350f,1.0f-0.381100f, 0.385350f,1.0f-0.003256f,
+        0.072078f,1.0f-0.501107f, 0.393932f,1.0f-0.728072f, 0.393932f,1.0f-0.501107f,
+        0.465324f,1.0f-0.740258f, 0.702010f,1.0f-0.976941f, 0.702010f,1.0f-0.740258f,
+        0.072078f,1.0f-0.728072f, 0.393932f,1.0f-0.728072f, 0.072078f,1.0f-0.501107f,
+        0.763193f,1.0f-0.003256f, 0.385350f,1.0f-0.003256f, 0.763191f,1.0f-0.381100f,
+        0.465324f,1.0f-0.976941f, 0.702010f,1.0f-0.976941f, 0.465324f,1.0f-0.740258f,
+        0.385350f,1.0f-0.003256f, 0.007506f,1.0f-0.003256f, 0.007506f,1.0f-0.381100f,
+        0.630787f,1.0f-0.697951f, 0.968082f,1.0f-0.697951f, 0.630787f,1.0f-0.360658f,
     };
 
     for (int i=0; i<6*6; i++) {
@@ -118,8 +112,9 @@ int main(int argc, char** argv)
         g_color_buffer_data[3*i + 2] = (g_vertex_buffer_data[3*i + 2] + 1.0f) / 2.0f;
     }
 
-    GLuint Texture = loadBMP_custom("uvtemplate.bmp");
-    //GLuint Texture = loadDDS("uvtemplate.dds");
+    //GLuint Texture = loadBMP_custom("uvtemplate.bmp");
+    GLuint Texture = loadDDS("uvtemplate.DDS");
+    GLuint TextureID = glGetUniformLocation(programID, "myTextureSampler");
 
     GLuint vertexbuffer;
     glGenBuffers(1, &vertexbuffer);
@@ -136,10 +131,25 @@ int main(int argc, char** argv)
     glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data, GL_STATIC_DRAW);
 
+    if (glfwRawMouseMotionSupported()) {
+        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    }
+
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(programID);
-        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+
+        computeMatricesFromInputs(window, width, height);
+        glm::mat4 Projection = getProjectionMatrix();
+        glm::mat4 View = getViewMatrix();
+        glm::mat4 Model = glm::mat4(1.0f);
+        glm::mat4 MVP = Projection * View * Model;
+
+        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, Texture);
+        glUniform1i(TextureID, 0);
 
         // Draw
         // First attribute is vertices array

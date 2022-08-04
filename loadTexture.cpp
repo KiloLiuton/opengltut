@@ -13,13 +13,13 @@ GLuint loadBMP_custom(const char* imagepath)
     unsigned char * data;
     FILE* file = fopen(imagepath, "rb");
     if (!file) {
-        printf("Image could not be loaded\n");
+        fprintf(stderr, "Image could not be loaded\n");
         return 0;
     }
     if ((fread(header, 1, 54, file) != 54) ||
         (header[0] != 'B') ||
         (header[1] != 'M')) {
-        printf("Invalid BMP file");
+        fprintf(stderr, "Invalid BMP file");
         return 0;
     }
     dataPos   = *(int*)&(header[0x0A]); // get metadata from header
@@ -52,6 +52,8 @@ GLuint loadBMP_custom(const char* imagepath)
 #define FOURCC_DXT1 0x31545844 // Equivalent to "DXT1" in ASCII
 #define FOURCC_DXT3 0x33545844 // Equivalent to "DXT3" in ASCII
 #define FOURCC_DXT5 0x35545844 // Equivalent to "DXT5" in ASCII
+                               //
+                               //
 GLuint loadDDS(const char* imagepath)
 {
     unsigned char header[124];
@@ -59,13 +61,13 @@ GLuint loadDDS(const char* imagepath)
 
     fp = fopen(imagepath, "rb");
     if (fp==NULL) {
-        printf("Image could not be loaded\n");
+        fprintf(stderr, "Image could not be loaded!\n");
         return 0;
     }
 
     char filecode[4];
     fread(filecode, 1, 4, fp);
-    if(strncmp(filecode, "DDS", 4) != 0) {
+    if (strncmp(filecode, "DDS ", 4) != 0) {
         fclose(fp);
         return 0;
     }
