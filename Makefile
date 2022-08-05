@@ -11,5 +11,10 @@ debug:
 release:
 	g++ main.cpp ${deps} -o run ${cflags} ${lflags} -O3
 
+zip:
+	rm -f foogl.zip
+	make release
+	zip foogl.zip run vertex.glsl fragment.glsl uvtemplate.DDS blender_assets/cube_uv.obj
+
 clean:
 	rm -f run_debug run
