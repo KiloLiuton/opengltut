@@ -1,7 +1,7 @@
 cflags = -Iimgui
 lflags = -lglfw -lGLEW -lGLU -lGL
-deps = shader.cpp loadTexture.cpp controls.cpp
-headers = shader.hpp loadTexture.hpp controls.hpp
+deps = shader.cpp loadTexture.cpp controls.cpp objloader.cpp
+headers = shader.hpp loadTexture.hpp controls.hpp objloader.hpp
 
 debug:
 	make clean
@@ -9,7 +9,7 @@ debug:
 	./run_debug
 
 release:
-	g++ main.cpp ${deps} ${headers} shader.cpp -o run ${cflags} ${lflags} -O3
+	g++ main.cpp ${deps} -o run ${cflags} ${lflags} -O3
 
 clean:
 	rm -f run_debug run

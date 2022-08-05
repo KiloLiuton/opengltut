@@ -16,6 +16,7 @@ using namespace glm;
 #include "shader.hpp"
 #include "loadTexture.hpp"
 #include "controls.hpp"
+#include "objloader.hpp"
 
 
 int main(int argc, char** argv)
@@ -30,8 +31,8 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    int width = 780;
-    int height = 640;
+    int width = 1280;
+    int height = 720;
     GLFWwindow* window;
     window = glfwCreateWindow(width, height, "footracer", NULL, NULL);
     if (window == NULL) {
@@ -41,6 +42,7 @@ int main(int argc, char** argv)
     }
     glfwMakeContextCurrent(window);
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     glewExperimental = true;
     if (glewInit() != GLEW_OK) {
@@ -61,65 +63,30 @@ int main(int argc, char** argv)
 
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
-    static const GLfloat g_vertex_buffer_data[6*6*3] = {
-       +1.0f,+1.0f,+1.0f, -1.0f,-1.0f,+1.0f, -1.0f,+1.0f,+1.0f,// front face
-       +1.0f,+1.0f,+1.0f, +1.0f,-1.0f,+1.0f, -1.0f,-1.0f,+1.0f,
-       -1.0f,-1.0f,-1.0f, -1.0f,+1.0f,-1.0f, +1.0f,+1.0f,-1.0f,// back face
-       -1.0f,-1.0f,-1.0f, +1.0f,-1.0f,-1.0f, +1.0f,+1.0f,-1.0f,
-       +1.0f,+1.0f,+1.0f, -1.0f,+1.0f,+1.0f, +1.0f,+1.0f,-1.0f,// top face
-       -1.0f,+1.0f,-1.0f, -1.0f,+1.0f,+1.0f, +1.0f,+1.0f,-1.0f,
-       +1.0f,-1.0f,+1.0f, -1.0f,-1.0f,+1.0f, +1.0f,-1.0f,-1.0f,// bottom face
-       -1.0f,-1.0f,-1.0f, -1.0f,-1.0f,+1.0f, +1.0f,-1.0f,-1.0f,
-       +1.0f,+1.0f,+1.0f, +1.0f,-1.0f,+1.0f, +1.0f,+1.0f,-1.0f,// right face
-       +1.0f,-1.0f,-1.0f, +1.0f,-1.0f,+1.0f, +1.0f,+1.0f,-1.0f,
-       -1.0f,+1.0f,+1.0f, -1.0f,-1.0f,+1.0f, -1.0f,+1.0f,-1.0f,// left face
-       -1.0f,-1.0f,-1.0f, -1.0f,-1.0f,+1.0f, -1.0f,+1.0f,-1.0f,
-    };
-
-    static GLfloat g_color_buffer_data[6*6*3] = {
-        0.0f,0.0f,1.0f, 0.0f,0.0f,1.0f, 1.0f,0.0f,0.0f,//
-        0.0f,0.0f,1.0f, 0.5f,1.0f,0.0f, 0.0f,0.0f,1.0f,
-        0.0f,1.0f,0.5f, 0.5f,0.0f,1.0f, 0.0f,0.5f,1.0f,//
-        0.0f,1.0f,0.5f, 1.0f,0.0f,0.5f, 0.0f,0.5f,1.0f,
-        0.0f,0.0f,1.0f, 1.0f,0.0f,0.0f, 0.0f,0.5f,1.0f,//
-        0.5f,0.0f,1.0f, 1.0f,0.0f,0.0f, 0.0f,0.5f,1.0f,
-        0.5f,1.0f,0.0f, 0.0f,0.0f,1.0f, 1.0f,0.0f,0.5f,//
-        0.0f,1.0f,0.5f, 0.0f,0.0f,1.0f, 1.0f,0.0f,0.5f,
-        0.0f,0.0f,1.0f, 0.5f,1.0f,0.0f, 0.0f,0.5f,1.0f,//
-        1.0f,0.0f,0.5f, 0.5f,1.0f,0.0f, 0.0f,0.5f,1.0f,
-        1.0f,0.0f,0.0f, 0.0f,0.0f,1.0f, 0.5f,0.0f,1.0f,//
-        0.0f,1.0f,0.5f, 0.0f,0.0f,1.0f, 0.5f,0.0f,1.0f,
-    };
-
-    static GLfloat g_uv_buffer_data[6*6*2] = {
-        0.630787f,1.0f-0.360658f, 0.968082f,1.0f-0.697951f, 0.968082f,1.0f-0.360658f,
-        0.763191f,1.0f-0.381100f, 0.385350f,1.0f-0.003256f, 0.385350f,1.0f-0.381100f,
-        0.393932f,1.0f-0.728072f, 0.072078f,1.0f-0.728072f, 0.072078f,1.0f-0.955037f,
-        0.072078f,1.0f-0.955037f, 0.393932f,1.0f-0.955037f, 0.393932f,1.0f-0.728072f,
-        0.007506f,1.0f-0.381100f, 0.385350f,1.0f-0.381100f, 0.385350f,1.0f-0.003256f,
-        0.072078f,1.0f-0.501107f, 0.393932f,1.0f-0.728072f, 0.393932f,1.0f-0.501107f,
-        0.465324f,1.0f-0.740258f, 0.702010f,1.0f-0.976941f, 0.702010f,1.0f-0.740258f,
-        0.072078f,1.0f-0.728072f, 0.393932f,1.0f-0.728072f, 0.072078f,1.0f-0.501107f,
-        0.763193f,1.0f-0.003256f, 0.385350f,1.0f-0.003256f, 0.763191f,1.0f-0.381100f,
-        0.465324f,1.0f-0.976941f, 0.702010f,1.0f-0.976941f, 0.465324f,1.0f-0.740258f,
-        0.385350f,1.0f-0.003256f, 0.007506f,1.0f-0.003256f, 0.007506f,1.0f-0.381100f,
-        0.630787f,1.0f-0.697951f, 0.968082f,1.0f-0.697951f, 0.630787f,1.0f-0.360658f,
-    };
-
-    for (int i=0; i<6*6; i++) {
-        g_color_buffer_data[3*i + 0] = (g_vertex_buffer_data[3*i + 0] + 1.0f) / 2.0f;
-        g_color_buffer_data[3*i + 1] = (g_vertex_buffer_data[3*i + 1] + 1.0f) / 2.0f;
-        g_color_buffer_data[3*i + 2] = (g_vertex_buffer_data[3*i + 2] + 1.0f) / 2.0f;
-    }
-
-    //GLuint Texture = loadBMP_custom("uvtemplate.bmp");
+    // Set texture
+    // GLuint Texture = loadBMP_custom("uvtemplate.bmp");
     GLuint Texture = loadDDS("uvtemplate.DDS");
+
     GLuint TextureID = glGetUniformLocation(programID, "myTextureSampler");
+
+    // Load obj file
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec2> uvs;
+    std::vector<glm::vec3> normals;
+    loadOBJ("blender_assets/cube_uv.obj", vertices, uvs, normals);
+
+    // Set vertex colors with their position
+    GLfloat g_color_buffer_data[3 * vertices.size()];
+    for (int i=0; i<6*6; i++) {
+        g_color_buffer_data[3*i + 0] = (vertices[i].x + 1.0f) / 2.0f;
+        g_color_buffer_data[3*i + 1] = (vertices[i].y + 1.0f) / 2.0f;
+        g_color_buffer_data[3*i + 2] = (vertices[i].z + 1.0f) / 2.0f;
+    }
 
     GLuint vertexbuffer;
     glGenBuffers(1, &vertexbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 
     GLuint colorbuffer;
     glGenBuffers(1, &colorbuffer);
@@ -129,11 +96,10 @@ int main(int argc, char** argv)
     GLuint uvbuffer;
     glGenBuffers(1, &uvbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
 
-    if (glfwRawMouseMotionSupported()) {
-        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-    }
+    if (glfwRawMouseMotionSupported()) glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    glEnable(GL_CULL_FACE);
 
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

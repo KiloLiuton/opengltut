@@ -44,17 +44,27 @@ void computeMatricesFromInputs(GLFWwindow* window, int width, int height)
     );
     glm::vec3 up = glm::cross(right, direction);
 
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+    if ((glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) ||
+        (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)) {
         position += direction * deltaTime * speed;
     }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+    if ((glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) ||
+        (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)) {
         position -= direction * deltaTime * speed;
     }
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+    if ((glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) ||
+        (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)) {
         position += right * deltaTime * speed;
     }
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+    if ((glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) ||
+        (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)) {
         position -= right * deltaTime * speed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        position += up * deltaTime * speed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        position -= up * deltaTime * speed;
     }
     ProjectionMatrix = glm::perspective(initialFOV, (float) width/height, 0.1f, 100.f);
     ViewMatrix = glm::lookAt(position, position + direction, up);
