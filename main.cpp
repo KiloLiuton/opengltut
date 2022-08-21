@@ -30,8 +30,8 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    int width = 1280;
-    int height = 720;
+    int width = 2440;
+    int height = 1440;
     GLFWwindow* window;
     window = glfwCreateWindow(width, height, "footracer", NULL, NULL);
     if (window == NULL) {
@@ -60,11 +60,11 @@ int main(int argc, char** argv)
 
     GLuint programID = LoadShaders("vertex.glsl", "fragment.glsl");
 
-    GLuint MatrixID = glGetUniformLocation(programID, "MVP");
-    GLuint ModelMatrixID = glGetUniformLocation(programID, "M");
-    GLuint ViewMatrixID = glGetUniformLocation(programID, "V");
-    GLuint LightID = glGetUniformLocation(programID, "LightPosition");
-    GLuint LightPowerID = glGetUniformLocation(programID, "LightPower");
+    GLuint MatrixID        = glGetUniformLocation(programID, "MVP");
+    GLuint ModelMatrixID   = glGetUniformLocation(programID, "M");
+    GLuint ViewMatrixID    = glGetUniformLocation(programID, "V");
+    GLuint LightPositionID = glGetUniformLocation(programID, "LightPosition");
+    GLuint LightColorID    = glGetUniformLocation(programID, "LightColor");
 
     // Set texture
     //GLuint Texture = loadBMP_custom("blender_assets/cube_uv.bmp");
@@ -99,6 +99,8 @@ int main(int argc, char** argv)
     if (glfwRawMouseMotionSupported()) glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     //glEnable(GL_CULL_FACE);
 
+
+    unsigned int iframe = 0;
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(programID);
@@ -108,14 +110,16 @@ int main(int argc, char** argv)
         glm::mat4 ViewMatrix = getViewMatrix();
         glm::mat4 ProjectionMatrix = getProjectionMatrix();
         glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
-        glm::vec3 light = {2.0f, 1.0f, 0.0f};
-        float lightpower = 1.0f;
 
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
         glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
         glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
-        glUniformMatrix4fv(LightID, 1, GL_FALSE, &light[0]);
-        glUniformMatrix4fv(LightPowerID, 1, GL_FALSE, &lightpower);
+
+        glm::vec3 light_position = {4*glm::sin(iframe/100.0f), 4.0f, 4*glm::cos(iframe/100.0f)};
+        glm::vec3 light_color = {1.0f, 1.0f, 1.0f};
+        light_color = light_color * 50.0f;
+        glUniform3f(LightPositionID, light_position.x, light_position.y, light_position.z);
+        glUniform3f(LightColorID, light_color.x, light_color.y, light_color.z);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, Texture);
@@ -146,6 +150,7 @@ int main(int argc, char** argv)
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+        iframe++;
     }
     while ((glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS) &&
            (glfwWindowShouldClose(window) == 0));
