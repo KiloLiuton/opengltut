@@ -23,7 +23,7 @@ bool loadOBJ(
         return false;
     }
     char lineHeader[128];
-    int res = fscanf(file, "%s", lineHeader); // Read up to blank character
+    int res = fscanf(file, "%s", lineHeader); // Read up to blank character (space, newline, ...)
     while(res != EOF) {
         if (strcmp(lineHeader, "v") == 0) {
             glm::vec3 vertex;
